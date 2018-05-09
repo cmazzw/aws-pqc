@@ -1,0 +1,40 @@
+sqlite是一个开源的嵌入式文件数据库，sqlite以动态链接库的方式供应用程序调用，
+所有的数据库对象都存储在同一个文件中。 sqlite动态库非常小，最新的3.8.11版本也只有500k左右。
+sqlite虽然小，但功能并不弱，它支持sql-92标准中大部分SQL规范，
+支持表，索引，视图，触发器等对象，同时它还支持事务，满足ACID特性，因此非常适合嵌入式设备存储数据，其是手机，君不见微信，支付宝其实都在用哦。
+鉴于sqlite在嵌入式 领域非常流行，本人最近也在学习这个数据库，后面在学习的过程中，会整理些笔记，希望对大家有帮助。
+
+在sqlite官网上http://www.sqlite.com/download.html下载最新的源代码，
+目前最新的版本是3.8.11。sqlite的源码包有两类，一类是sqlite-amalgamation-3081101.zip，这个包里面的 的源码只有一个源码文件sqlite3.c，
+包含了sqlite各个模块的所有代码；另外一类是sqlite-src-3081101.zip，这个包按sqlite模块拆分成了很多小文件。
+如果你想学习源代码，建议使用sqlite-src-3081101.zip，而如果用来熟悉sqlite功能，
+则建议使用sqlite-amalgamation-3081101.zip，因为就一个文件，方便将代码整合到自己的工程。下文，都假设采用只有一个文件的包。
+
+
+拿到源码后，我们看到除了sqlite3.c源文件，还有shell.c文件。因为sqlite3.c只是一个动态库的源文件，因此通过整合shell.c可以生成sqlite执行码，简单来说就是sqlite3的客户端。
+1)  编译命令行管理工具
+gcc shell.c sqlite3.c -lpthread -ldl -o sqlite3
+2)  编译动态链接库
+gcc sqlite3.c -lpthread -ldl -fPIC -shared -o libsqlite3.so 
+备注：
+-fPIC：表示编译为位置独立的代码，不用此选项的话编译后的代码是位置相关的，动态载入时是通过代码拷贝的方式来满足不同进程的需要， 这样，N个进程就就需要N个动态库的拷贝，不能达到真正代码段共享的目的。
+-shared：表示生成一个共享目标文件，即我们所说的动态链接库。它可以和其他目标文件连接产生可执行文件。
+-lpthread系统库用于支持线程操作。
+-dl系统库用于支持动态装载。
+3)  编译静态库
+gcc -c sqlite3.c -lpthread -ldl -o sqlite3.o
+ar -r libsqlite3.a sqlite3.o
+
+
+qc *qc_st;//这个只是定义了指针，并没有分配内存，所以在函数中调用会出现段错误
+struct qc_data qc_st;//这个定义了一个数据类型，并分配了内存。函数调用不会出错
+缺少头文件居然不报错，结果返回乱七八糟的东西，例如atof这个函数的使用，stdlib
+
+
+
+acenter@front:~/src/rqc> gcc -o rqc rqc.c -I./include -L./lib -lsqlite3
+acenter@front:~/src/rqc> export LD_LIBRARY_PATH=/home/acenter/src/rqc/lib
+acenter@front:~/src/rqc> ./rqc
+
+
+gcc -Wall -o rqc rqc.c -I./include -L./lib -lsqlite3
